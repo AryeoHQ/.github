@@ -1,4 +1,7 @@
 {
     "name": "Generate Pull Request Body",
-    "description": "A workflow which generates body content for a pull request."
+    "description": "A workflow which generates body content for a pull request.",
+    "categories": [
+        "Aryeo"
+    ]
 }
