@@ -1,0 +1,38 @@
+name: Update Pull Request Body
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  generate-pr-body:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: "Build Changelog"
+        id: build-changelog
+        uses: mikepenz/release-changelog-builder-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          configuration: "release-changelog-builder.config.json"
+          fromTag: "${{ github.event.pull_request.base.sha }}"
+          toTag: "${{ github.event.pull_request.head.sha }}"
+          commitMode: true
+
+      - name: Generate PR body
+        uses: tzkhan/pr-update-action@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          base-branch-regex: '[a-z\d-_.\\/]+'
+          body-template: |
+            ## Changelog
+
+            ${{steps.build-changelog.outputs.changelog}}
+          body-update-action: "suffix"
+          body-uppercase-base-match: false
